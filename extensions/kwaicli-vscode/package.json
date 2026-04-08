@@ -1,0 +1,281 @@
+{
+  "name": "kwaicli-vscode",
+  "displayName": "KwaiCLI - AI 编程助手",
+  "version": "1.0.0",
+  "description": "类似 GitHub Copilot 和 Claude Code 的 AI 编程助手",
+  "categories": [
+    "Machine Learning",
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "ai",
+    "claude",
+    "code-completion",
+    "copilot",
+    "kuaishou",
+    "kwaicli"
+  ],
+  "publisher": "kwaicli",
+  "main": "./out/extension.js",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "lint": "eslint src --ext ts",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "test": "node ./out/test/runTest.js",
+    "vscode:prepublish": "pnpm run compile",
+    "watch": "tsc -watch -p ./"
+  },
+  "dependencies": {
+    "ws": "^8.14.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "kwaicli.chat",
+        "title": "KwaiCLI: 打开聊天",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "kwaicli.completion.toggle",
+        "title": "KwaiCLI: 切换代码补全",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "kwaicli.explain",
+        "title": "KwaiCLI: 解释代码",
+        "icon": "$(book)"
+      },
+      {
+        "command": "kwaicli.review",
+        "title": "KwaiCLI: 代码审查",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "kwaicli.refactor",
+        "title": "KwaiCLI: 重构建议",
+        "icon": "$(tools)"
+      },
+      {
+        "command": "kwaicli.fix",
+        "title": "KwaiCLI: 修复问题",
+        "icon": "$(wrench)"
+      },
+      {
+        "command": "kwaicli.test",
+        "title": "KwaiCLI: 生成测试",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "kwaicli.doc",
+        "title": "KwaiCLI: 生成文档",
+        "icon": "$(file-text)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "kwaicli.chat",
+        "key": "ctrl+shift+k",
+        "mac": "cmd+shift+k"
+      },
+      {
+        "command": "kwaicli.completion.toggle",
+        "key": "ctrl+alt+k",
+        "mac": "cmd+alt+k"
+      },
+      {
+        "command": "kwaicli.explain",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorHasSelection"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "kwaicli",
+          "title": "KwaiCLI",
+          "icon": "assets/sidebar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "kwaicli": [
+        {
+          "id": "kwaicli.chatView",
+          "name": "聊天",
+          "type": "webview"
+        },
+        {
+          "id": "kwaicli.historyView",
+          "name": "历史记录"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "KwaiCLI",
+      "properties": {
+        "kwaicli.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "KwaiCLI API Key（可使用 ${env:KWAICLI_API_KEY}）",
+          "order": 1
+        },
+        "kwaicli.apiEndpoint": {
+          "type": "string",
+          "default": "http://localhost:18789",
+          "description": "KwaiCLI API 端点",
+          "order": 2
+        },
+        "kwaicli.model": {
+          "type": "string",
+          "default": "kwaicli-code-latest",
+          "description": "默认模型 ID",
+          "enum": [
+            "kwaicli-code-latest",
+            "kwaicli-chat-latest",
+            "kwaicli-code-pro",
+            "anthropic/claude-opus-4",
+            "openai/gpt-4-turbo"
+          ],
+          "order": 3
+        },
+        "kwaicli.completion.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用自动代码补全",
+          "order": 10
+        },
+        "kwaicli.completion.triggerCharacters": {
+          "type": "array",
+          "default": [
+            ".",
+            "(",
+            "{",
+            "[",
+            " ",
+            "\n"
+          ],
+          "description": "触发补全的字符",
+          "order": 11
+        },
+        "kwaicli.completion.maxSuggestions": {
+          "type": "number",
+          "default": 3,
+          "description": "最大补全建议数",
+          "minimum": 1,
+          "maximum": 10,
+          "order": 12
+        },
+        "kwaicli.completion.debounceMs": {
+          "type": "number",
+          "default": 300,
+          "description": "防抖延迟（毫秒）",
+          "minimum": 0,
+          "maximum": 2000,
+          "order": 13
+        },
+        "kwaicli.chat.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用聊天功能",
+          "order": 20
+        },
+        "kwaicli.chat.contextLines": {
+          "type": "number",
+          "default": 50,
+          "description": "聊天时包含的上下文行数",
+          "minimum": 0,
+          "maximum": 1000,
+          "order": 21
+        },
+        "kwaicli.tools.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用工具调用（文件读写、命令执行等）",
+          "order": 30
+        },
+        "kwaicli.tools.confirmBeforeExecution": {
+          "type": "boolean",
+          "default": true,
+          "description": "执行工具前确认",
+          "order": 31
+        },
+        "kwaicli.logging.level": {
+          "type": "string",
+          "default": "info",
+          "description": "日志级别",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ],
+          "order": 40
+        },
+        "kwaicli.telemetry.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "启用遥测（匿名使用数据）",
+          "order": 50
+        }
+      }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorHasSelection",
+          "command": "kwaicli.explain",
+          "group": "kwaicli@1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "kwaicli.review",
+          "group": "kwaicli@2"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "kwaicli.refactor",
+          "group": "kwaicli@3"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "kwaicli.fix",
+          "group": "kwaicli@4"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "kwaicli.test",
+          "group": "kwaicli@5"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "kwaicli.doc",
+          "group": "kwaicli@6"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "kwaicli.chat",
+          "when": "view == kwaicli.chatView",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "icon": "assets/icon.png",
+  "engines": {
+    "vscode": "^1.80.0"
+  }
+}

@@ -1200,6 +1200,24 @@ export function loadOpenClawPlugins(options: PluginLoadOptions = {}): PluginRegi
     try {
       mod = getJiti(safeSource)(safeSource) as OpenClawPluginModule;
     } catch (err) {
+      // When a bundled plugin fails to load (e.g. missing dependencies in a
+      // globally-installed npm package), do NOT mark the plugin id as seen so
+      // that a user-installed copy (global/workspace) can still be loaded.
+      if (candidate.origin === "bundled") {
+        logger.warn(
+          `[plugins] ${record.id} bundled copy failed to load from ${record.source}: ${String(err)}; will try user-installed copy if available`,
+        );
+        record.status = "error";
+        record.error = String(err);
+        registry.plugins.push(record);
+        registry.diagnostics.push({
+          level: "warn",
+          pluginId: record.id,
+          source: record.source,
+          message: `bundled plugin failed to load (fallback to user-installed): ${String(err)}`,
+        });
+        continue;
+      }
       recordPluginError({
         logger,
         registry,

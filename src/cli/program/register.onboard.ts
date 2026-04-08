@@ -106,6 +106,8 @@ export function registerOnboardCommand(program: Command) {
   }
 
   command
+    .option("--wanqing-api-key <key>", "WanQing API key")
+    .option("--wanqing-endpoint-id <id>", "WanQing endpoint ID")
     .option("--custom-base-url <url>", "Custom provider base URL")
     .option("--custom-api-key <key>", "Custom provider API key (optional)")
     .option("--custom-model-id <id>", "Custom provider model ID")
@@ -165,6 +167,8 @@ export function registerOnboardCommand(program: Command) {
           ...providerAuthOptionValues,
           cloudflareAiGatewayAccountId: opts.cloudflareAiGatewayAccountId as string | undefined,
           cloudflareAiGatewayGatewayId: opts.cloudflareAiGatewayGatewayId as string | undefined,
+          wanqingApiKey: opts.wanqingApiKey as string | undefined,
+          wanqingEndpointId: opts.wanqingEndpointId as string | undefined,
           customBaseUrl: opts.customBaseUrl as string | undefined,
           customApiKey: opts.customApiKey as string | undefined,
           customModelId: opts.customModelId as string | undefined,

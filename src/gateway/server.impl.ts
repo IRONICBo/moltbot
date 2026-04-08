@@ -57,6 +57,10 @@ import { setActivePluginRegistry } from "../plugins/runtime.js";
 import { createPluginRuntime } from "../plugins/runtime/index.js";
 import type { PluginServicesHandle } from "../plugins/services.js";
 import { getTotalQueueSize } from "../process/command-queue.js";
+import {
+  getKwaiCLIProxyServer,
+  stopKwaiCLIProxyServer,
+} from "../providers/kwaicli-proxy-server.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { CommandSecretAssignment } from "../secrets/command-config.js";
 import {
@@ -550,6 +554,14 @@ export async function startGatewayServer(
     );
   }
 
+  // Initialize KwaiCLI proxy server if KwaiCLI provider is configured
+  try {
+    await getKwaiCLIProxyServer();
+    log.info("kwaicli: proxy server started on http://127.0.0.1:27849");
+  } catch (error) {
+    log.warn(`kwaicli: failed to start proxy server: ${String(error)}`);
+  }
+
   initSubagentRegistry();
   const gatewayPluginConfigAtStart = applyPluginAutoEnable({
     config: cfgAtStart,
@@ -770,6 +782,13 @@ export async function startGatewayServer(
     stopModelPricingRefresh();
     channelHealthMonitor?.stop();
     clearSecretsRuntimeSnapshot();
+
+    // Stop KwaiCLI proxy server
+    try {
+      await stopKwaiCLIProxyServer();
+    } catch (error) {
+      log.warn(`kwaicli: failed to stop proxy server: ${String(error)}`);
+    }
     await createGatewayCloseHandler({
       bonjourStop,
       tailscaleCleanup,

@@ -209,6 +209,15 @@ const entries: SubCliEntry[] = [
     },
   },
   {
+    name: "kwaicli",
+    description: "KwaiCLI integration for Kuaishou AI code assistant",
+    hasSubcommands: true,
+    register: async (program) => {
+      const mod = await import("../../commands/kwaicli-command.js");
+      mod.registerKwaiCLICommand(program);
+    },
+  },
+  {
     name: "clawbot",
     description: "Legacy clawbot command aliases",
     hasSubcommands: true,

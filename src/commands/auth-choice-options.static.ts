@@ -21,6 +21,22 @@ export type AuthChoiceGroup = {
 
 export const CORE_AUTH_CHOICE_OPTIONS: ReadonlyArray<AuthChoiceOption> = [
   {
+    value: "wanqing-api-key",
+    label: "WanQing (Internal Kuaishou AI Gateway)",
+    hint: "Use WanQing API key for Kuaishou internal models",
+    groupId: "wanqing",
+    groupLabel: "WanQing",
+    groupHint: "Internal Kuaishou AI Gateway",
+  },
+  {
+    value: "kwaicli-api-key",
+    label: "KwaiCLI (Codex + Claude Code style)",
+    hint: "Use KwaiCLI for local AI code assistant",
+    groupId: "kwaicli",
+    groupLabel: "KwaiCLI",
+    groupHint: "Kuaishou CLI code assistant",
+  },
+  {
     value: "custom-api-key",
     label: "Custom Provider",
     hint: "Any OpenAI or Anthropic compatible endpoint",

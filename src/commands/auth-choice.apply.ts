@@ -5,7 +5,9 @@ import type { WizardPrompter } from "../wizard/prompts.js";
 import { normalizeLegacyOnboardAuthChoice } from "./auth-choice-legacy.js";
 import { applyAuthChoiceApiProviders } from "./auth-choice.apply.api-providers.js";
 import { normalizeApiKeyTokenProviderAuthChoice } from "./auth-choice.apply.api-providers.js";
+import { applyAuthChoiceKwaiCLI } from "./auth-choice.apply.kwaicli.js";
 import { applyAuthChoiceOAuth } from "./auth-choice.apply.oauth.js";
+import { applyAuthChoiceWanQing } from "./auth-choice.apply.wanqing.js";
 import type { AuthChoice, OnboardOptions } from "./onboard-types.js";
 
 export type ApplyAuthChoiceParams = {
@@ -47,6 +49,8 @@ export async function applyAuthChoice(
     applyAuthChoiceLoadedPluginProvider,
     applyAuthChoiceOAuth,
     applyAuthChoiceApiProviders,
+    applyAuthChoiceKwaiCLI,
+    applyAuthChoiceWanQing,
   ];
 
   for (const handler of handlers) {

@@ -12,6 +12,12 @@ import {
 } from "../plugins/provider-discovery.js";
 import { ensureAuthProfileStore } from "./auth-profiles/store.js";
 import {
+  buildKwaiCLIModelDefinition,
+  discoverKwaiCLIModels,
+  KWAICLI_BASE_URL,
+  KWAICLI_MODEL_CATALOG,
+} from "./kwaicli-models.js";
+import {
   isNonSecretApiKeyMarker,
   resolveNonEnvSecretRefApiKeyMarker,
 } from "./model-auth-markers.js";
@@ -360,6 +366,18 @@ export async function resolveImplicitProviders(
     env,
     providers,
   });
+
+  // KwaiCLI provider - add if kwaicli API key is available
+  const kwaiCliKey = context.resolveProviderApiKey("kwaicli");
+  if (kwaiCliKey.apiKey) {
+    const models = await discoverKwaiCLIModels();
+    providers.kwaicli = {
+      baseUrl: KWAICLI_BASE_URL,
+      api: "openai-completions",
+      models: models.length > 0 ? models : KWAICLI_MODEL_CATALOG.map(buildKwaiCLIModelDefinition),
+      apiKey: kwaiCliKey.apiKey,
+    };
+  }
 
   return providers;
 }
